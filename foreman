@@ -1,0 +1,120 @@
+Refer below link 
+
+https://www.linuxsysadmins.com/install-foreman-katello-patch-management-on-centos-7/Redhat 
+
+https://docs.theforeman.org/3.3/Quickstart/index-katello.html#_running_the_installer
+
+Tuning profile 'default' requires at least 8 GB of memory and 1 CPU cores
+
+satellitee 5 is based on pacewalker 
+Redhat satellite 6 is based in kattelo foreman 
+
+### Foreman & Katello Overview
+
+**Foreman:**
+- Manages lifecycle for servers.
+- Uses Puppet and Kickstart for automation.
+
+**Katello:**
+- Manages Red Hat repositories and content.
+- **Key Components:**
+  - **Candlepin:** Subscription management.
+  - **Pulp:** Repository and content management.
+- **Features:**
+  - Subscription Management
+  - Auditing
+  - Centralized Console
+  - Patch Management
+  - Automation
+  - Alerts
+  - Identity Policy Management
+
+**Hammer CLI:**
+- Command line tool for managing Foreman and Katello.
+
+### Red Hat Satellite Versions
+
+- **Satellite 5:** Based on Pacewalker.
+- **Satellite 6:** Based on Katello and Foreman.
+- **Latest Version:** Red Hat Satellite 6.15
+
+### Lab Environment
+
+- **OS:** CentOS 7
+- **IP Address:** 192.168.0.113
+- **Hostname:** foreman.nehraclasses.local
+- **Hardware Specifications:**
+  - Minimum: 4 CPUs
+  - Recommended: 16 vCPUs, 20GB RAM, 80GB HDD1, 100GB HDD2 (for Pulp)
+
+**Initial Setup:**
+1. **Set Hostname & Hosts File:**
+   - Update `/etc/hosts`.
+
+2. **Chrony Configuration:**
+   ```bash
+   yum install chrony -y
+   systemctl start chronyd
+   systemctl enable chronyd
+
+
+systemctl stop firewalld
+systemctl disable firewalld
+
+
+mkdir /var/lib/pulp
+restorecon -Rv /var/lib/pulp/
+
+
+yum update -y
+yum -y localinstall https://yum.theforeman.org/releases/1.24/el7/x86_64/foreman-release.rpm
+
+
+Foreman & Katello Configuration
+Hammer CLI:
+
+Configuration File:
+
+Update ~/.hammer/cli.modules.d/foreman.yml.
+Commands:
+
+List users:
+
+foreman-maintain service list
+foreman-maintain service restart
+hammer ping 
+hammer user list
+hammer organization list
+hammer product create --organization-id 1 --name "centos7" --description "repository for centos Linux"
+foreman-rake permissions:reset
+
+
+UI Configuration:
+
+Create Product:
+Navigate to Content → Products → Create Product.
+Example Product: Name: cebtos7
+
+
+Ubuntu Configuration for Katello
+Install Subscription Manager:
+
+echo "deb https://oss.atix.de/Ubuntu22LTS/ stable main" | sudo tee /etc/apt/sources.list.d/atix-submgr.list
+
+sudo apt-get install subscription-manager -y
+
+curl --insecure --output katello-ca-consumer-latest.noarch.rpm https://swansol.local/pub/katello-ca-consumer-latest.noarch.rpm
+sudo apt-get install alien
+sudo alien -d katello-ca-consumer-latest.noarch.rpm
+dpkg -i katello-ca-consumer-swansol.local_1.0-2_all.deb
+
+sudo subscription-manager register --org="Default_Organization" --activationkey=ubuntu-UAT
+sudo subscription-manager status
+
+
+hammer product create --name "Red Hat Enterprise Linux 8" --description "Red Hat Enterprise Linux 8 Product" --organization "Default Organization"
+
+hammer repository create --name "Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)" --product "Red Hat Enterprise Linux 8" --content-type "yum" --url "https://cdn.redhat.com/content/dist/rhel8/$releasever/x86_64/appstream/os" --organization "Default Organization"
+
+
+
